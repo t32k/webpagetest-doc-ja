@@ -1,38 +1,48 @@
 # Speed Index
 
-The Speed Index is the average time at which visible parts of the page are displayed.  It is expressed in milliseconds and dependent on size of the view port.
+Speed Indexは表示されたページの見える部分、つまりATF/ファーストビューの平均時間です。それはビューポートサイズに依存し、ミリ秒で表わされます。
 
-The Speed Index metric was added to WebPagetest in April, 2012 and measures how quickly the page contents are visually populated (where lower numbers are better).  It is particularly useful for comparing experiences of pages against each other (before/after optimizing, my site vs competitor, etc) and should be used in combination with the other metrics (load time, start render, etc) to better understand a site's performance.
+Speed Indexの指標がWebPagetestに追加されたのは2012年の4月で、いかに速くページの見える部分がレンダリングされたのか計測します（数値が低いほうが良いです）。これはUXを比較（改善前後、自社サイトと競合サイトなど）するのに大いに役立ちますし、他の指標（読み込み時間、Start Renderなど）と合わせて見るべきでWebパフォーマンスを理解するのに良いでしょう。
 
+## これまでの問題の背景
 
-## The Problem
+これまで私達はWebページが速かったのか、遅かったのか決めるためにある種の段階的なタイミングに頼らざるをえませんでした。これのタイミングの中で最も一般的なのは、ブラウザがメインのドキュメントのloadイベントに達するまでの時間、つまりonloadでしょう。loadイベントはラボ環境や実際のネット環境であろうとも計測自体は簡単です。しかし、不幸にもこれは実際のエンドユーザー体験を理解するための良い指標とは言えません。ページのコンテンツが増えていけば、当然、ユーザーには見えない部分やスクリーン外（below the fold）のコンテンツを読み込まなければならず、たとえユーザーに見る部分がはるか昔にレンダリングされていたとしても、読み込み時間は長くなってしまいます。私達は他のより良いタイミング（first paintまでの時間や、DOM content readyの時間など）についても検討してきましたが、結局それらはひとつのポイントでしかなく、実際のエンドユーザーの体験を理解することはできないのです。
 
-Historically we have relied on milestone timings to determine how fast or slow web pages were.  The most common of these is the time until the browser reaches the load event for the main document (onload).  The load event is easy to measure both in a lab environment and in the real world.  Unfortunately, it isn't a very good indicator of the actual end-user experience.  As pages grow and load a lot of content that is not visible to the user or off the screen (below the fold) the time to reach the load event is extended even if the user-visible content has long-since rendered.  We have introduced more milestones over time to try to better represent the timings (time to first paint, time to DOM content ready, etc) but they are all fundamentally flawed in that they measure a single point and do not convey the actual user experience.
+## Speed Indexの登場
 
+Speed Indexは読み込んでいるページの見える部分のビジュアル的進捗状況（visual progress）を必要とし、ページのコンテンツがいかに速くレンダリングされたのか総合的なスコアが計算されます。このため、まずページの読み込みでいる間にあるさまざまなタイミングの中で、どの時点で『完了』と見なすのか判断する必要があります。WebPagetestにおいては、ページ読み込みをビデオキャプチャーし、毎フレームの画像をチェックすることにで可能にしています（現在の実装では1秒間に10フレーム記録でし、ビデオキャプチャーが有効になってるテストの時だけ計算されます）。各フレームの進捗率を計算する現在のアルゴリズムは以後で説明しますが、とりあえず今は各フレームの進捗率を%で表しています（各フレームの下にある数字）。
 
-## Introducing the Speed Index
+![](https://sites.google.com/a/webpagetest.org/docs/_/rsrc/1334421426436/using-webpagetest/metrics/speed-index/compare_progress.png)
 
-The speed index takes the visual progress of the visible page loading and computes an overall score for how quickly the content painted.  To do this, first it needs to be able to calculate how "complete" the page is at various points in time during the page load.  In WebPagetest this is done by capturing a video of the page loading in the browser and inspecting each video frame (10 frames per second in the current implementation and only works for tests where video capture is enabled).  The current algorithm for calculating the completeness of each frame is described below, but for now assume we can assign each video frame a % complete (numbers displayed under each frame):
+完了になるまでページのvisual completeをプロットしてみると、以下のようなグラフができました。
 
-If we plot the completeness of a page over time we will end up with something that looks like this:
+![](https://sites.google.com/a/webpagetest.org/docs/_/rsrc/1334422231485/using-webpagetest/metrics/speed-index/chart-line-small.png)
 
+この曲線の下の部分の進捗率を数値に変換することが可能です。
 
-We can then convert the progress into a number by calculating the area under the curve:
+![](https://sites.google.com/a/webpagetest.org/docs/_/rsrc/1334422278220/using-webpagetest/metrics/speed-index/chart-progress-a-small.png)
 
- 
-This would be great except for one little detail, it is unbounded.  If a page spins for 10 seconds after reaching visually complete the score would keep increasing.  Using the "area above the graph" and calculating the unrendered portion of the page over time instead gives us a nicely bounded area that ends when the page is 100% complete and approaches 0 as the page gets faster:
+![](https://sites.google.com/a/webpagetest.org/docs/_/rsrc/1334422264852/using-webpagetest/metrics/speed-index/chart-progress-b-small.png)
+  
+これは非常に素晴らしい指標となりうるかもしれませんが、1点弱点を挙げるとすれば際限がないことです。もし、visually complete後にも10秒間読み込みのスピナーが回っていたとすればこのスコアは増加し続けます。『グラフ曲線の上の部分』を使用し、ページのレンダリングされてない部分を計算することで、ページが100%完了したなら終了ですし、ページが速いほど0に近づく有限なエリアとなります。
 
- 
-The Speed Index is the "area above the curve" calculated in ms and using 0.0-1.0 for the range of visually complete.  The calculation looks at each 0.1s interval and calculates IntervalScore = Interval * (1.0 - (Completeness/100)) where Completeness is the % Visually complete for that frame and Interval is the elapsed time for that video frame in ms (100 in this case).  The overall score is just a sum of the individual intervals: SUM(IntervalScore)
+![](https://sites.google.com/a/webpagetest.org/docs/_/rsrc/1334422315127/using-webpagetest/metrics/speed-index/chart-index-a-small.png)
 
-For comparison, this is what the video frames looked like for the two pages ("A" is on top and "B" is on the bottom):
+![](https://sites.google.com/a/webpagetest.org/docs/_/rsrc/1334422330956/using-webpagetest/metrics/speed-index/chart-index-b-small.png)
 
+![](https://sites.google.com/a/webpagetest.org/docs/_/rsrc/1336574582211/using-webpagetest/metrics/speed-index/speedindexformula.png)
 
-## Measuring Visual Progress
+Speed Indexとはミリ秒で計算された『グラフ曲線の上の部分』であり、visually completeには0.0-1.0の範囲で算出される。この計算方法は、0.1秒のインターバルに設定し、次の計算式で計算する。`IntervalScore = Interval * (1.0 - (Completeness/100))`この時の`Completeness`はそのフレームのvisually completeで%が単位です。また、`Interval`はビデオフレームの経過時間(ミリ秒)で、この場合は100msです。総合スコアは個々のインターバルの合計なので、つまり`SUM(IntervalScore)`です。
 
-I kind of hand-waved over how the "completeness" of each video frame is calculated and the calculating of the Speed Index itself is independent of the technique used for determining the completeness (and can be used with different methods of calculating completeness).  We have two methods available that we are currently working with:
+比較のために、2つのページのビデオフレームが次です（Aが上、Bが下）。
 
-### Visual Progress from Video Capture
+![](https://sites.google.com/a/webpagetest.org/docs/_/rsrc/1334422690700/using-webpagetest/metrics/speed-index/compare_trimmed.png)
+
+## Visual Progressの算出方法
+
+I kind of hand-waved over how the "completeness" of each video frame is calculated and the calculating of the Speed Index itself is independent of the technique used for determining the completeness (and can be used with different methods of calculating completeness). 私達は現在2つのメソッドを利用することができます。
+
+### ビデオキャプチャーによるVisual Progress
 
 A simplistic approach would look at each pixel of the image and compare it to the final image and then calculate the % of pixels that match for each frame (perhaps also ignoring any pixels that match between the beginning and ending frames).  The main problem with this approach is that web pages are fluid and things like an ad loading can cause the rest of the page to move.  In a pixel-comparison mode this would look like every pixel on the screen changed, even if the actual content just shifted down a single pixel.
 
@@ -41,7 +51,7 @@ The technique we settled on was to take histograms of the colors in the image (o
 This is the original mechanism that was used to calculate visual progress when the Speed Index was initially created and still works well but there are some cases where it has problems (video playing on pages, slideshows animating or large interstitials).  It is very sensitive to the end state and calculates the progress based on the final image.  It is also only measurable in a lab and relies on video capture being possible.
 
 
-### Visual Progress from Paint Events
+### ペイントイベントによるVisual Progress
 
 More recently we have (successfully) experimented with using the Paint Events that are exposed by Webkit through the developer tools timeline (which are also available to extensions and through the remote debugging protocol).  It is available on all recent webkit-based browsers including desktop and mobile and across all platforms.  It is also very lightweight and does not require capturing video.  It is somewhat sensitive to the renderer implementation in a given browser so it is not as useful for comparing performance across different browsers.
 
@@ -66,13 +76,16 @@ The specific algorithm we are using to calculate the speed index from the dev to
 
 
 
-# Reference Speed Index Results
+# 参考： Speed Indexの結果
 
 ## 5Mbps Cable
 
-Alexa top 300,000 from the testing done by the HTTP Archive:
+HTTP AchiveによればAlexaの上位300,000のテスト結果は以下。
 
+![](https://sites.google.com/a/webpagetest.org/docs/_/rsrc/1369234119985/using-webpagetest/metrics/speed-index/si-cable.png)
 
 ## 1.5Mbps DSL
 
-Alexa top 100,000 from the testing done by the HTTP Archive:
+HTTP AchiveによればAlexaの上位100,000のテスト結果は以下。
+
+![](https://sites.google.com/a/webpagetest.org/docs/_/rsrc/1335895409235/using-webpagetest/metrics/speed-index/distribution.png)
