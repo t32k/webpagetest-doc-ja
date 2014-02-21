@@ -1,5 +1,4 @@
-# Speed Index
-
+# [Speed Index](https://sites.google.com/a/webpagetest.org/docs/using-webpagetest/metrics/speed-index)
 Speed Indexは表示されたページの見える部分、つまりATF/ファーストビューの平均時間です。それはビューポートサイズに依存し、ミリ秒で表わされます。
 
 Speed Indexの指標がWebPagetestに追加されたのは2012年の4月で、いかに速くページの見える部分がレンダリングされたのか計測します（数値が低いほうが良いです）。これはUXを比較（改善前後、自社サイトと競合サイトなど）するのに大いに役立ちますし、他の指標（読み込み時間、Start Renderなど）と合わせて見るべきでWebパフォーマンスを理解するのに良いでしょう。
