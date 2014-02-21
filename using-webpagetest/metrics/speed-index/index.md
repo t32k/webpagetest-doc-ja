@@ -40,20 +40,24 @@ Speed Indexとはミリ秒で計算された『グラフ曲線の上の部分』
 
 ## Visual Progressの算出方法
 
-I kind of hand-waved over how the "completeness" of each video frame is calculated and the calculating of the Speed Index itself is independent of the technique used for determining the completeness (and can be used with different methods of calculating completeness). 私達は現在2つのメソッドを利用することができます。
+各ビデオフレームの進捗率というのは波打ったような曲線になり、Speed Indexの計算と進捗率を決定する技術とは独立したものとなります（進捗率の計算は異なる計算方法が使用される可能性があります）。私達は2つのメソッドを現在、提供しています。
 
 ### ビデオキャプチャーによるVisual Progress
 
-A simplistic approach would look at each pixel of the image and compare it to the final image and then calculate the % of pixels that match for each frame (perhaps also ignoring any pixels that match between the beginning and ending frames).  The main problem with this approach is that web pages are fluid and things like an ad loading can cause the rest of the page to move.  In a pixel-comparison mode this would look like every pixel on the screen changed, even if the actual content just shifted down a single pixel.
+{{ 念校 }}
 
-The technique we settled on was to take histograms of the colors in the image (one each for red, green and blue) and just look at the overall distribution of colors on the page.  We calculate the difference between the starting histograms (for the first video frame) and the ending histogram (last video frame) and use that difference as the baseline.  The difference of the histogram for each frame in the video versus the first histogram is compared to the baseline to determine how "complete" that video frame is.  There are some cases where it will not really be accurate but the trade-off has proved to be very worthwhile for the vast majority of pages we have tested it against.
+単純なアプローチとして画像の各ピクセルを最終的なイメージと比較し、各フレームがどれだけマッチしてるのか%を算出します（おそらく最初と最後のフレームのいくつかのマッチしているピクセルは無視されます）。このアプローチの問題としてはリキッドデザインなページや広告の読み込みなどで、コンテンツが移動してしまう可能性があるからです。ピクセル比較モードにおいては、実際のコンテンツが単一のピクセルにシフトダウンしたとしても、スクリーン上のすべてのピクセルの変化を見ます。
 
-This is the original mechanism that was used to calculate visual progress when the Speed Index was initially created and still works well but there are some cases where it has problems (video playing on pages, slideshows animating or large interstitials).  It is very sensitive to the end state and calculates the progress based on the final image.  It is also only measurable in a lab and relies on video capture being possible.
+私達が決めたこのテクニックはキャプチャーした画像の（赤、緑、青といった具合の）各色のヒストグラムを作成し、全体の色分布を見ているだけでした。最初のビデオフレームから抽出したヒストグラムと最後のビデオフレームから抽出したヒストグラムを差異を計算し、それを差異のベースラインとして使用します。各ビデオフレームのヒストグラムと最初のフレームのヒストグラムとの差異は、ベースラインと比較され、そのビデオフレームがどれだけ完了しているのか決定されます。時折、正確な状態を表していないこともありますが、私達がテストしてきた結果、多くのページで価値のある結果が出されてきたことを証明していますので安心してください。
 
+これはSpeed Indexが作られたときに visual progressを計算する独自のメカニズムで、まだうまく機能しますが、いくつかのケースで問題があります。ケースというのは、動画を再生するページや、スライドショーなどの大きな要素を含むページです。終了の状態と最終イメージを基準としたビジュアルプログレスの計算というのは繊細なものです。また、ラボでしか計測できず、ビデオキャプチャーが有効の場合のみです。
+
+{{ /念校 }}
 
 ### ペイントイベントによるVisual Progress
 
-More recently we have (successfully) experimented with using the Paint Events that are exposed by Webkit through the developer tools timeline (which are also available to extensions and through the remote debugging protocol).  It is available on all recent webkit-based browsers including desktop and mobile and across all platforms.  It is also very lightweight and does not require capturing video.  It is somewhat sensitive to the renderer implementation in a given browser so it is not as useful for comparing performance across different browsers.
+More recently we have (successfully) experimented with using the Paint Events that are exposed by Webkit through the developer tools timeline (which are also available to extensions and through the remote debugging protocol).  
+It is available on all recent webkit-based browsers including desktop and mobile and across all platforms.  It is also very lightweight and does not require capturing video.  It is somewhat sensitive to the renderer implementation in a given browser so it is not as useful for comparing performance across different browsers.
 
 In order to get useful data, it requires a fair bit of filtering and weighting.
 
