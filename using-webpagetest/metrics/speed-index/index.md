@@ -19,15 +19,11 @@ Speed Indexは読み込んでいるページの見える部分のビジュアル
 
 この曲線の下の部分の進捗率を数値に変換することが可能です。
 
-![](https://sites.google.com/a/webpagetest.org/docs/_/rsrc/1334422278220/using-webpagetest/metrics/speed-index/chart-progress-a-small.png)
-
-![](https://sites.google.com/a/webpagetest.org/docs/_/rsrc/1334422264852/using-webpagetest/metrics/speed-index/chart-progress-b-small.png)
+![](http://i.imgur.com/pDMZNiY.png)
   
 これは非常に素晴らしい指標となりうるかもしれませんが、1点弱点を挙げるとすれば際限がないことです。もし、visually complete後にも10秒間読み込みのスピナーが回っていたとすればこのスコアは増加し続けます。『グラフ曲線の上の部分』を使用し、ページのレンダリングされてない部分を計算することで、ページが100%完了したなら終了ですし、ページが速いほど0に近づく有限なエリアとなります。
 
-![](https://sites.google.com/a/webpagetest.org/docs/_/rsrc/1334422315127/using-webpagetest/metrics/speed-index/chart-index-a-small.png)
-
-![](https://sites.google.com/a/webpagetest.org/docs/_/rsrc/1334422330956/using-webpagetest/metrics/speed-index/chart-index-b-small.png)
+![](http://i.imgur.com/DVMaDiS.png)
 
 ![](https://sites.google.com/a/webpagetest.org/docs/_/rsrc/1336574582211/using-webpagetest/metrics/speed-index/speedindexformula.png)
 
