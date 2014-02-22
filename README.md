@@ -1,4 +1,4 @@
-# WebPagetest Documentation in Japanese
+# WebPagetest Doc in Ja
 
 オリジナル
 
