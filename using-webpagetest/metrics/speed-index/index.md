@@ -35,11 +35,9 @@ Speed Indexとはミリ秒で計算された『グラフ曲線の上の部分』
 
 ## Visual Progressの算出方法
 
-各ビデオフレームの進捗率というのは波打ったような曲線になり、Speed Indexの計算と進捗率を決定する技術とは独立したものとなります（進捗率の計算は異なる計算方法が使用される可能性があります）。私達は2つのメソッドを現在、提供しています。
+各ビデオフレームのVisual Progressというのは波打ったような曲線になり、Speed Indexの計算と進捗率を決定する技術とは独立したものとなります（進捗率の計算は異なる計算方法が使用される可能性があります）。私達は2つのメソッドを現在、提供しています。
 
 ### ビデオキャプチャーによるVisual Progress
-
-{{ 念校 }}
 
 単純なアプローチとして画像の各ピクセルを最終的なイメージと比較し、各フレームがどれだけマッチしてるのか%を算出します（おそらく最初と最後のフレームのいくつかのマッチしているピクセルは無視されます）。このアプローチの問題としてはリキッドデザインなページや広告の読み込みなどで、コンテンツが移動してしまう可能性があるからです。ピクセル比較モードにおいては、実際のコンテンツが単一のピクセルにシフトダウンしたとしても、スクリーン上のすべてのピクセルの変化を見ます。
 
@@ -47,33 +45,28 @@ Speed Indexとはミリ秒で計算された『グラフ曲線の上の部分』
 
 これはSpeed Indexが作られたときに visual progressを計算する独自のメカニズムで、まだうまく機能しますが、いくつかのケースで問題があります。ケースというのは、動画を再生するページや、スライドショーなどの大きな要素を含むページです。終了の状態と最終イメージを基準としたビジュアルプログレスの計算というのは繊細なものです。また、ラボでしか計測できず、ビデオキャプチャーが有効の場合のみです。
 
-{{ /念校 }}
-
 ### ペイントイベントによるVisual Progress
 
-More recently we have (successfully) experimented with using the Paint Events that are exposed by Webkit through the developer tools timeline (which are also available to extensions and through the remote debugging protocol).  
-It is available on all recent webkit-based browsers including desktop and mobile and across all platforms.  It is also very lightweight and does not require capturing video.  It is somewhat sensitive to the renderer implementation in a given browser so it is not as useful for comparing performance across different browsers.
+最近では、私達は（リモートデバッグプロトコルや拡張機能を利用できる）デベロッパーツールのタイムラインを通して、Webkitのペイントイベントを使用する試みをしていて概ねうまくいっています。最近のWebkitベースのブラウザであれば、モバイル・デスクトップ両方のプラットフォームで使用することが可能で、非常に軽量なうえにビデオキャプチャーを必要としません。また、ブラウザのレンダラーに依存するため異なるブラウザでのパフォーマンス比較には適していません。
 
-In order to get useful data, it requires a fair bit of filtering and weighting.
+有益なデータを得るために、いろいろフィルタリングや重みつけをしています。
 
-The specific algorithm we are using to calculate the speed index from the dev tools paint rects is:
+DevToolsの描画矩形（paint rects）からSpeed Indexを計算するためのアルゴリズムは以下のとおりです。
 
-+ In the case of Webkit-based browsers, we collect the timeline data which includes paint rects as well as other useful events.
-+ We filter out any paint events that occur before the first layout that happens after the first response data is received.
++ Webkitベースのブラウザにおいて、ほかの有用なイベント同様に描画矩形データをタイムラインから収集します。
++ 最初のレイアウトが実行する前と、最初のレスポンスデータを受信した後に発生した描画イベントを除外します
 	+ ResourceReceiveResponse -> Layout -> Paint events.
-	+ This is done because the browser does several paint events before any data has actually been processed.
-+ We group all paint events by the rectangle that they are updating (frame ID, x, y, width, height).
-+ We consider the largest paint rectangle painted to be the "full screen" rectangle.
-+ Each rectangle contributes a score towards an overall total.  The available points for a given rectangle is that rectangle's area (width x height).
-+ Full screen paints (any paint events for the largest rectangle) are counted as 50% so that they still contribute but do not dominate the progress.
-+ The overall total is the sum of the points for each rectangle.
-+ The points for a given rectangle are divided evenly across all of the paint events that painted that rectangle.
-	+ A rectangle with a single paint event will have the full area as it's contribution.
-	+ A rectangle with 4 paint events will contribute 25% of it's area for each paint event.
-+ The endTime for any given paint event is used for the time of that paint event.
-+ The visual progress is calculated by adding each paint event's contribution to a running total, approaching the overall total (100%).
-
-
+	+ これはブラウザが実際のデータを処理する前に描画イベントが発生させてしまうためです。
++ frame ID, x, y, width, heightなどの情報がアップデートされる、すべての描画矩形イベントを収集します。
++ もっとも大きな描画矩形はフルスクリーン矩形としてみなします。
++ 各矩形は総合スコアに加算されます。つまり矩形ポイントというのは矩形の面積のことです（width x height）。
++ フルスクリーン描画（もっとも大きな矩形の描画イベント）のポイントは50%としてカウントするため、それがプロセスを占めることはありません。
++ 総合スコアは各矩形ポイントの合計です。
++ 矩形ポイントはその矩形内の描画イベントの回数によって平均化されます。
+	+ 単一の描画イベントで出来た矩形はそのまますべてスコアに加算されます。
+	+ 4回の描画イベントを伴う矩形は25%づつスコアに加算されます。
++ 描画イベントの終了時間はその描画イベントの時間に使用されます。
++ Visual Progressはその時点までのポイントよって（総合スコアの何%か）計算されます。
 
 # 参考： Speed Indexの結果
 
