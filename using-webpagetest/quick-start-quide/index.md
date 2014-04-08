@@ -1,66 +1,51 @@
-Quick Start Guide
-At its core, WebPagetest is used for measuring and analyzing the performance of web pages.  There are a lot of options that may seem intimidating at first but doing quick testing is pretty simple.  This guide will walk you through submitting a test and interpreting the results.
+# Quick Start Guide
 
-Contents
-1 Running a Performance Test
-1.1 Enter The Page URL:
-1.2 Select a Location:
-1.3 Select a Browser:
-1.4 Submit the Test
-2 Interpreting the Results
-2.1 Optimization Grades:
-2.1.1 Keep-alive Enabled:
-2.1.2 Compress Text:
-2.1.3 Compress Images:
-2.1.4 Cache Static Content:
-2.1.5 Combine JS/CSS Files:
-2.1.6 Use of CDN:
-2.2 High-level Metrics:
-2.2.1 Repeat View:
-2.2.2 Document Complete:
-2.2.3 Fully Loaded:
-2.2.4 Load Time:
-2.2.5 First Byte:
-2.2.6 Start Render:
-2.2.7 DOM Elements:
-2.2.8 The DOM Elements metric is the count of the DOM elements on the tested page as measured at the end of the test.
-2.2.9 Requests:
-2.2.10 Bytes In:
-Running a Performance Test
+基本的には、WebPagetestはWebページのパフォーマンス計測と分析に使用される。非常に多くのオプション設定があり、最初はたじろいでしまうかもしれないが、テストを始めるまでのプロセスは極めてシンプルだ。このガイドはテストの送信からテストの結果の解釈までを解説します。
 
-Enter The Page URL:
+## パフォーマンステストの実行
 
-The first thing you need to do is decide on a page to test.  Most people start with the main page for their site (but don't neglect the other pages people visit either).  Once you have decided on a page you'd like to test you go to WebPagetest and give it the URL for the page you want tested:
+### ページのURLを入力:
+
+まずはじめにテストしたいページを決める必要がある。多くの場合、調べたいサイトの主要なページから始めている（だからといって、他のページを疎かにするという意味ではない）。テストしたいページさえ決定すれば、あとは[WebPagetest](http://www.webpagetest.org/)のサイトに行き、URLを入力するだけです。
+
+![](https://sites.google.com/a/webpagetest.org/docs/_/rsrc/1297439328282/using-webpagetest/quick-start-quide/url.png)
+
+### ロケーションを選択する:
+
+次にどこからテストを実行するのか決める必要がある。WebPagetestは物理的に世界中にテストマシーンを配置しており、あなたのサイトの訪問者に近いロケーションでテストすべきである。リストからロケーションを選択することが可能で、`Change`ボタンを押せば地図上からロケーションを選択することもできる（テストしたいロケーションのバルーンをクリックして`OK`ボタンを押すだけ）。またバルーン上でカーソルを置けば、ロケーション情報が表示されます。
+
+![](https://sites.google.com/a/webpagetest.org/docs/_/rsrc/1297440420631/using-webpagetest/quick-start-quide/map.png)
+
+### ブラウザを選択する:
+
+最後に、テストに使用するブラウザを決定する。ロケーションが異なれば、そのロケーションでサポートするブラウザも異なるので、もしあなたが求めているブラウザがなければ、違うローケーションで試してみる。`Dulles, VA USA`ロケーションはWebPagetest上で動作するすべてのブラウザをサポートしている（Internet Explorer 6 ~ 9）。今は`dynaTrace`ブラウザは無視してもらってもかまわない。これはより詳細な分析のために使用するためのものである。基本的に最初のテストはIE7を推奨する。なぜならそれは最悪のシナリオケースなので、簡単に問題を見つけることができるからだ。
 
 
-Select a Location:
-
-Next you should decide where you want the test to be run from.  WebPagetest has test machines that are physically located around the world and you should test from a location that is close to where your users are visiting from.  You can either pick a location from the list or if you click on the Change button you can pick a location from a map view (just click on a balloon to select a location and then click ok).  If you hold the pointer over the bubbles they will display a message telling you where the location is:
+![](https://sites.google.com/a/webpagetest.org/docs/_/rsrc/1297440788068/using-webpagetest/quick-start-quide/browser.png)
 
 
-Select a Browser:
+### テストを送信する
 
-Finally, you need to decide what browser to use for the test.  Different locations support different browsers so if a given location doesn't have the browser you are looking for, you can try a different location.  The Dulles, VA USA location supports all of the browsers that WebPagetest works with (Internet Explorer 6, 7, 8 and 9).  Ignore the "dynaTrace" browsers for now, those are used for more advanced analysis.  We usually recommend using IE7 for initial testing because it's pretty much the worst-case scenario and makes it easier to see a lot of issues so if you're not sure what browser to start with just use IE7.
-
-
-Submit the Test
-
-After everything is configured the way you like, click on the   button and your request will be sent to the test location for testing.  The test may take a while to run depending on how many tests are ahead of yours (figure at least one minute for each test ahead of yours but it's not unusual for it to be even longer than that).  Once the test is complete you will be presented with the results.
-
-Interpreting the Results
-
-The results screen can be a bit intimidating the first time you see it because there is a lot of information to consume but there are some key pieces of information to look at first.
-
-Optimization Grades:
-
-At the top of the results page are a set of grades for the most critical performance optimizations.  These cover the basic optimizations that apply to just about all sites and anything that isn't an A or a B justifies some serious scrutiny and investigation.
+すべてのオプション設定が終われば`START TEST`ボタンを押し、リクエストがテストロケーションに送信される。他の人が先にテストをリクエストしていればそれが終わるまであなたのテスト実行までに時間がかかる（あなたよりの先のテストを実行するのに少なくとも1分はかかること、また1分以上かかることも珍しくないということを理解してほしい）。テストが完了すればテスト結果ページが表示されるだろう。
 
 
+## テスト結果の解釈
 
-Keep-alive Enabled:
+テスト結果画面に最初は多少たじろいでしまうかもしれない、なぜなら理解するには非常に多くの情報があるからだ。しかし、最初に見るべきキーとなる情報がある。
+
+### Optimization Grades:
+
+テスト結果ページの上部にはパフォーマンス最適化に重要な項目のグレード一覧が表示されている。これらはすべてのサイトに当てはまるような基本的な最適化だけであり、AやBという指標はテストの精度を表すものでない。
+
+![](https://sites.google.com/a/webpagetest.org/docs/_/rsrc/1297455667929/using-webpagetest/quick-start-quide/grades.png)
+
+#### Keep-alive Enabled:
 
 Each request for a piece of content on the page (image, javascript, css, flash, etc) needs to be made over a connection to the web server.  Setting up new connections can take a lot of time so it is best to re-use connections when you can and keep-alive is the way that is done.  They are enabled by default on most configurations and are part of the HTTP 1.1 standard but there are times when they will be broken (sometimes unintentionally).  Enabling keep-alives is usually just a configuration change on the server and does not require any changes to the page itself and can usually reduce the time to load a page by 40-50%.
-Compress Text:
+
+ページ上の各コンテンツ（画像、JavaScript、CSS、Flash等）へのリクエストはWebサーバーとの接続しなければならない。新しくコネクション確立するのは非常に時間のかかることなので、keep-aliveを使用しコネクションの再利用するのが最適な方法です。
+
+#### Compress Text:
 
 Just about everything on a page that isn't an image or video is text of some kind (html, javascript, css).  Text compresses really well and HTTP provides a way to transfer the files in compressed form.  Enabling compression for text resources is usually just a server configuration change without requiring any changes to the page itself and can both improve the performance and reduce the costs of serving the content (by reducing the amount of data transmitted).  Since text resources are usually downloaded at the beginning of the page (javascript and css), delivering them faster has a much larger impact on the user experience than excessive bytes on images or other content.
 Compress Images:

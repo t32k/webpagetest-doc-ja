@@ -24,7 +24,7 @@ Start Renderはイニシャルナビゲーション接続からブラウザに�
 
 The Speed Index is a calculated metric that represents how quickly the page rendered the user-visible content (lower is better).  More information on how it is calculated is available here: Speed Index
 
-Speed Indexはユーザーが確認できるコンテンツがいかに速くレンダリングされたか表す指標（低い方が良い）。どのように計算されるのか詳細はこちらを参照：[Speed Index]()
+Speed Indexはユーザーが確認できるコンテンツがいかに速くレンダリングされたか表す指標（低い方が良い）。どのように計算されるのか詳細はこちらを参照：[Speed Index](/using-webpagetest/metrics/speed-index/index.md)
 
 ### DOM Elements
 
